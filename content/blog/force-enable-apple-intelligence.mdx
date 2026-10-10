@@ -1,0 +1,47 @@
+---
+title: "跨越限制：macOS 与 iOS 强开 Apple Intelligence 完整实操与避坑指南"
+description: "绕过地区与机型限制，深入 eligibilityd 与 MobileGestalt 底层激活端侧智能套件。"
+pubDate: "2026-10-10"
+tags: ["Apple", "macOS", "iOS", "逆向调试"]
+readTime: "6 min"
+---
+
+针对 Apple Intelligence 严格的区域与硬件阻断，本指南整理了在保证系统数据安全前提下的完整绕过与补丁加载方案。
+
+### 1. 环境基线核对
+
+| 设备类型 | 最低系统要求 | 硬件架构 | 账户网络前置 |
+| :--- | :--- | :--- | :--- |
+| **Mac 设备** | macOS 15.1+ | M 系列芯片 (16GB+ 建议) | 系统与 Siri 均设为 English (US) |
+| **移动端** | iOS 18.1 / iPadOS 18.1 | A17 Pro 或 M 系列芯片 | 需登录美区账户且出站走原生住宅节点 |
+
+### 2. macOS 恢复模式权限调整
+
+在启动参数中放宽安全限制以允许加载内核伪装模块：
+
+```bash
+csrutil disable
+bputil -k -c -a
+```
+
+### 3. 补丁克隆与一键部署
+
+重启并正常进入 macOS 系统后，打开终端并执行以下命令，通过开源修复脚本接管系统的合规性检查（eligibility checks）：
+
+```bash
+cd ~/Downloads
+git clone https://github.com/SkyBlue997/enableMacosAI.git
+cd enableMacosAI
+chmod +x install.sh
+sudo ./install.sh
+```
+
+### 4. 守护进程重载与验证
+
+脚本执行完毕后，需要强制终止 `eligibilityd` 守护进程，强制其重新加载被接管的判定策略：
+
+```bash
+sudo killall -9 eligibilityd
+```
+
+完成后，前往「系统设置」>「Apple Intelligence & Siri」，你应该能看到原本被灰置或隐藏的开关已经完全解锁可用了。
