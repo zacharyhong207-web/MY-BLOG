@@ -14,7 +14,7 @@
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.358.0",
     "next": "14.2.3",
-    "next-mdx-remote": "^4.4.1",
+    "next-mdx-remote": "^6.0.0",
     "react": "^18",
     "react-dom": "^18",
     "shiki": "^1.2.0",
