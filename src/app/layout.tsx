@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh" className="dark">
-      <body className="antialiased min-h-screen relative selection:bg-white/30 selection:text-white">
+    <html lang="zh" className="dark bg-black">
+      <body className="min-h-screen bg-black text-white antialiased selection:bg-white/30 selection:text-white relative">
         <LanguageProvider>
           <div className="noise-overlay" />
           <div className="ambient-glow" />
