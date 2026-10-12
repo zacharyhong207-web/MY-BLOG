@@ -6,7 +6,7 @@ import { dictionaries, Locale } from "@/lib/i18n";
 interface LanguageContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: typeof dictionaries.zh;
+  t: (typeof dictionaries)["zh"];
 }
 
 const defaultContextValue: LanguageContextType = {
@@ -17,42 +17,45 @@ const defaultContextValue: LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [locale, setLocale] = useState<Locale>("zh");
+export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
+  const [locale, setLocaleState] = useState<Locale>("zh");
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("preferred-locale") as Locale;
+      const saved = localStorage.getItem("app_locale") as Locale;
       if (saved && (saved === "zh" || saved === "en")) {
-        setLocale(saved);
+        setLocaleState(saved);
       }
     } catch {
       // Ignore localStorage errors in SSR / private browsing
     }
   }, []);
 
-  const handleSetLocale = (newLocale: Locale) => {
-    setLocale(newLocale);
+  const setLocale = (newLocale: Locale) => {
+    setLocaleState(newLocale);
     try {
-      localStorage.setItem("preferred-locale", newLocale);
+      localStorage.setItem("app_locale", newLocale);
     } catch {
       // Ignore localStorage errors
     }
   };
 
-  const t = dictionaries[locale] || dictionaries.zh;
+  const value = {
+    locale,
+    setLocale,
+    t: dictionaries[locale] || dictionaries.zh,
+  };
 
   return (
-    <LanguageContext.Provider value={{ locale, setLocale: handleSetLocale, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-export const useTranslation = (): LanguageContextType => {
+export const useTranslation = () => {
   const context = useContext(LanguageContext);
   if (!context) {
-    // 降级保护：在 SSR、测试或静态构建阶段如果 context 暂时为 undefined，默认返回中文词典，绝不 throw Error
     return defaultContextValue;
   }
   return context;
