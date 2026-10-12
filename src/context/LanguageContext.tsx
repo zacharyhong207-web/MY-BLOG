@@ -9,13 +9,7 @@ interface LanguageContextType {
   t: (typeof dictionaries)["zh"];
 }
 
-const defaultContextValue: LanguageContextType = {
-  locale: "zh",
-  setLocale: () => {},
-  t: dictionaries.zh,
-};
-
-const LanguageContext = createContext<LanguageContextType>(defaultContextValue);
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [locale, setLocaleState] = useState<Locale>("zh");
@@ -27,7 +21,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
         setLocaleState(saved);
       }
     } catch {
-      // Ignore localStorage errors in SSR / private browsing
+      // Ignore in SSR / private browsing
     }
   }, []);
 
@@ -36,7 +30,7 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
     try {
       localStorage.setItem("app_locale", newLocale);
     } catch {
-      // Ignore localStorage errors
+      // Ignore in SSR
     }
   };
 
@@ -56,7 +50,11 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
 export const useTranslation = () => {
   const context = useContext(LanguageContext);
   if (!context) {
-    return defaultContextValue;
+    return {
+      locale: "zh" as Locale,
+      setLocale: () => {},
+      t: dictionaries.zh,
+    };
   }
   return context;
 };
